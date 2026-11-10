@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privora | QR-Code Attendance System</title>
+  
+  <!-- Early Theme Init Script to Prevent Flicker -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('privora-theme') || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    })();
+  </script>
+
+  <!-- Strictly Local Offline Assets -->
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body class="min-vh-100 d-flex flex-column justify-content-between">
+
+  <!-- Top Floating Utility Header -->
+  <header class="p-3 p-md-4">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <a href="index.html" class="navbar-brand d-flex align-items-center gap-2 text-decoration-none">
+        <i class="bi bi-qr-code-scan"></i>
+        <span class="fw-bold">Privora</span>
+      </a>
+
+      <div class="d-flex align-items-center gap-2">
+        <!-- Direct link to Console -->
+        <a href="pages/dashboard.html" class="btn btn-sm btn-outline-secondary d-none d-sm-inline-flex align-items-center">
+          <i class="bi bi-speedometer2 me-1"></i> Dashboard Console
+        </a>
+
+        <!-- Light / Dark Mode Toggle Button -->
+        <button class="theme-toggle-btn" id="themeToggle" type="button" aria-label="Toggle color theme" title="Toggle color mode">
+          <i class="bi bi-moon-stars-fill"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Center Authentication Gateway Container -->
+  <main class="container my-auto py-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4" style="max-width: 460px;">
+        
+        <div class="card p-4 shadow-sm">
+          <!-- Card Header & Brand -->
+          <div class="text-center mb-3">
+            <div class="feature-icon mx-auto mb-2">
+              <i class="bi bi-qr-code-scan"></i>
+            </div>
+            <h4 class="fw-bold mb-1">Privora Portal</h4>
+            <p class="text-slate small mb-3">Smart QR-Code Attendance System</p>
+
+            <!-- Smooth Auth View Switcher (Nav Pills) -->
+            <ul class="nav auth-nav-pills nav-justified mb-2" id="authTab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="signin-tab" data-bs-toggle="pill" data-bs-target="#signin-pane" type="button" role="tab" aria-controls="signin-pane" aria-selected="true">
+                  <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="signup-tab" data-bs-toggle="pill" data-bs-target="#signup-pane" type="button" role="tab" aria-controls="signup-pane" aria-selected="false">
+                  <i class="bi bi-person-plus me-1"></i> Register
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Tab Content Panes -->
+          <div class="tab-content" id="authTabContent">
+            
+            <!-- 1. SIGN IN PANE -->
+            <div class="tab-pane fade show active" id="signin-pane" role="tabpanel" aria-labelledby="signin-tab">
+              <form action="pages/dashboard.html">
+                <!-- Role selection dropdown -->
+                <div class="mb-3">
+                  <label for="loginRole" class="form-label small fw-medium">Select Role</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                    <select class="form-select" id="loginRole" name="role" required>
+                      <option value="" disabled selected>Choose your role...</option>
+                      <option value="student">Student</option>
+                      <option value="teacher">Teacher / Faculty</option>
+                      <option value="admin">System Administrator</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Email address -->
+                <div class="mb-3">
+                  <label for="loginEmail" class="form-label small fw-medium">Institutional Email</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="name@university.edu" required>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <label for="loginPassword" class="form-label small fw-medium mb-0">Password</label>
+                    <a href="#" class="small text-slate text-decoration-none">Forgot?</a>
+                  </div>
+                  <div class="input-group mt-1">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required>
+                  </div>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="loginRemember" checked>
+                  <label class="form-check-label text-slate small" for="loginRemember">
+                    Stay logged in on this browser
+                  </label>
+                </div>
+
+                <!-- Sign In Action -->
+                <a href="pages/dashboard.html" class="btn btn-primary w-100 py-2">
+                  Sign In to Privora <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+              </form>
+            </div>
+
+            <!-- 2. CREATE ACCOUNT PANE -->
+            <div class="tab-pane fade" id="signup-pane" role="tabpanel" aria-labelledby="signup-tab">
+              <form action="pages/dashboard.html">
+                <!-- First & Last Name -->
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label for="regFirst" class="form-label small fw-medium">First name</label>
+                    <input type="text" class="form-control" id="regFirst" placeholder="Juan" required>
+                  </div>
+                  <div class="col-6">
+                    <label for="regLast" class="form-label small fw-medium">Last name</label>
+                    <input type="text" class="form-control" id="regLast" placeholder="Dela Cruz" required>
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-2">
+                  <label for="regEmail" class="form-label small fw-medium">Email address</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control" id="regEmail" placeholder="j.delacruz@university.edu" required>
+                  </div>
+                </div>
+
+                <!-- Role selection dropdown -->
+                <div class="mb-2">
+                  <label for="regRole" class="form-label small fw-medium">Assigned Role</label>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                    <select class="form-select" id="regRole" name="role" required>
+                      <option value="" disabled selected>Select system role...</option>
+                      <option value="student">Student</option>
+                      <option value="teacher">Teacher / Faculty</option>
+                      <option value="admin">System Administrator</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Department -->
+                <div class="mb-2">
+                  <label for="regDept" class="form-label small fw-medium">College Department</label>
+                  <select class="form-select" id="regDept">
+                    <option selected>College of Computer Studies</option>
+                    <option>College of Engineering</option>
+                    <option>College of Business Administration</option>
+                    <option>College of Arts and Sciences</option>
+                  </select>
+                </div>
+
+                <!-- Password -->
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <label for="regPassword" class="form-label small fw-medium">Password</label>
+                    <input type="password" class="form-control" id="regPassword" required>
+                  </div>
+                  <div class="col-6">
+                    <label for="regConfirm" class="form-label small fw-medium">Confirm</label>
+                    <input type="password" class="form-control" id="regConfirm" required>
+                  </div>
+                </div>
+
+                <!-- Agreement -->
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="regTerms" required checked>
+                  <label class="form-check-label text-slate small" for="regTerms">
+                    I accept the <a href="#" class="text-decoration-none text-brand">Institutional Terms</a>
+                  </label>
+                </div>
+
+                <!-- Register Action -->
+                <a href="pages/dashboard.html" class="btn btn-primary w-100 py-2">
+                  Complete Registration <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+              </form>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Clean Minimalist Offline Footer -->
+  <footer class="p-3 text-center text-slate small">
+    <div class="container">
+      <span>&copy; 2026 Privora Technologies. 100% Offline QR-Code Attendance System.</span>
+    </div>
+  </footer>
+
+  <!-- Strictly Local Bootstrap Bundle JS -->
+  <script src="assets/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Offline Theme Switcher Logic -->
+  <script>
+    (function() {
+      const toggleBtn = document.getElementById('themeToggle');
+      if (!toggleBtn) return;
+
+      function updateIcon(theme) {
+        if (theme === 'dark') {
+          toggleBtn.innerHTML = '<i class="bi bi-sun-fill text-warning"></i>';
+          toggleBtn.setAttribute('title', 'Switch to light theme');
+        } else {
+          toggleBtn.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+          toggleBtn.setAttribute('title', 'Switch to dark theme');
+        }
+      }
+
+      const activeTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      updateIcon(activeTheme);
+
+      toggleBtn.addEventListener('click', function() {
+        const current = document.documentElement.getAttribute('data-bs-theme');
+        const nextTheme = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-bs-theme', nextTheme);
+        localStorage.setItem('privora-theme', nextTheme);
+        updateIcon(nextTheme);
+      });
+    })();
+  </script>
+</body>
+</html>

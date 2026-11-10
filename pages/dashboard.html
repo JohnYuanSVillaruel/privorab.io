@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privora | Dashboard</title>
+
+  <!-- Early Theme Init Script to Prevent Screen Flicker -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('privora-theme') || 
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    })();
+  </script>
+
+  <!-- Strictly Local Offline Assets -->
+  <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg">
+  <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/css/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+
+      <!-- ========================================== -->
+      <!-- SIDEBAR NAVIGATION                         -->
+      <!-- ========================================== -->
+      <aside class="col-lg-2 d-none d-lg-block sidebar p-3 position-sticky top-0" style="height: 100vh; overflow-y: auto;">
+        <a href="../index.html" class="text-white text-decoration-none fw-bold fs-5 d-flex align-items-center gap-2 mb-4 px-2">
+          <i class="bi bi-qr-code-scan"></i>
+          <span>Privora</span>
+        </a>
+
+        <div class="small text-uppercase text-light text-opacity-50 px-2 mb-2 fw-semibold" style="letter-spacing: 0.05em; font-size: 0.7rem;">Core Operations</div>
+        <ul class="nav nav-pills flex-column gap-1 mb-4">
+          <li class="nav-item">
+            <a href="dashboard.html" class="nav-link active"><i class="bi bi-grid-1x2 me-2"></i>Overview Console</a>
+          </li>
+          <li class="nav-item">
+            <a href="#teacher-section" class="nav-link"><i class="bi bi-qr-code me-2"></i>Teacher QR Portal</a>
+          </li>
+          <li class="nav-item">
+            <a href="#student-section" class="nav-link"><i class="bi bi-camera me-2"></i>Student Scanner</a>
+          </li>
+          <li class="nav-item">
+            <a href="#student-roster-section" class="nav-link"><i class="bi bi-person-lines-fill me-2"></i>Student Roster</a>
+          </li>
+          <li class="nav-item">
+            <a href="#admin-section" class="nav-link"><i class="bi bi-shield-check me-2"></i>Admin Analytics</a>
+          </li>
+        </ul>
+
+        <div class="small text-uppercase text-light text-opacity-50 px-2 mb-2 fw-semibold" style="letter-spacing: 0.05em; font-size: 0.7rem;">Auditing &amp; Management</div>
+        <ul class="nav nav-pills flex-column gap-1">
+          <li class="nav-item">
+            <a href="#auditReportsModal" data-bs-toggle="modal" class="nav-link"><i class="bi bi-clipboard2-data me-2"></i>Audit Reports</a>
+          </li>
+          <li class="nav-item">
+            <a href="#accountSettingsModal" data-bs-toggle="modal" onclick="switchSettingsTab('system')" class="nav-link"><i class="bi bi-gear me-2"></i>System Settings</a>
+          </li>
+          <li class="nav-item mt-4 pt-3 border-top border-secondary border-opacity-25">
+            <a href="../index.html" class="nav-link text-danger text-opacity-75"><i class="bi bi-box-arrow-left me-2"></i>Sign Out</a>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- ========================================== -->
+      <!-- MAIN DASHBOARD CONTENT                     -->
+      <!-- ========================================== -->
+      <main class="col-lg-10 p-0">
+        <!-- Top Sticky Navbar -->
+        <nav class="navbar px-3 px-md-4 sticky-top">
+          <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-label="Open menu">
+            <i class="bi bi-list"></i>
+          </button>
+          
+          <div class="d-none d-sm-flex align-items-center gap-2">
+            <span class="badge bg-brand">Enterprise Console</span>
+            <span class="text-slate small fw-medium">QR Attendance &amp; Security Operations</span>
+          </div>
+
+          <!-- Section Switcher Shortcuts -->
+          <div class="d-none d-md-flex align-items-center gap-2 ms-auto me-3">
+            <a href="#teacher-section" class="btn btn-sm btn-outline-secondary"><i class="bi bi-qr-code me-1"></i>Teacher</a>
+            <a href="#student-section" class="btn btn-sm btn-outline-secondary"><i class="bi bi-camera me-1"></i>Student</a>
+            <a href="#student-roster-section" class="btn btn-sm btn-outline-secondary"><i class="bi bi-people me-1"></i>Roster</a>
+            <a href="#admin-section" class="btn btn-sm btn-outline-secondary"><i class="bi bi-shield-check me-1"></i>Admin</a>
+          </div>
+
+          <!-- Light / Dark Mode Toggle Button -->
+          <button class="theme-toggle-btn me-3" id="themeToggle" type="button" aria-label="Toggle color theme" title="Toggle color mode">
+            <i class="bi bi-moon-stars-fill"></i>
+          </button>
+
+          <!-- User Profile Dropdown -->
+          <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="../assets/images/students.jpg" class="rounded-circle me-2 border" width="36" height="36" style="object-fit:cover" alt="Profile">
+              <div class="text-start d-none d-sm-block">
+                <span class="d-block fw-semibold small lh-sm" id="topNavUserName">Prof. Alex Santos</span>
+                <span class="small text-slate" id="topNavUserRole" style="font-size: 0.75rem;">Faculty / Administrator</span>
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border mt-2">
+              <li class="px-3 py-1"><span class="small text-slate fw-semibold text-uppercase">Verified Account</span></li>
+              <li>
+                <a class="dropdown-item small" href="#accountSettingsModal" data-bs-toggle="modal" onclick="switchSettingsTab('profile')">
+                  <i class="bi bi-person me-2 text-slate"></i>Profile Information
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item small" href="#accountSettingsModal" data-bs-toggle="modal" onclick="switchSettingsTab('preferences')">
+                  <i class="bi bi-sliders me-2 text-slate"></i>Preferences
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item small" href="#accountSettingsModal" data-bs-toggle="modal" onclick="switchSettingsTab('system')">
+                  <i class="bi bi-gear me-2 text-slate"></i>System Settings
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item small text-danger" href="../index.html"><i class="bi bi-box-arrow-left me-2"></i>Sign Out</a></li>
+            </ul>
+          </div>
+        </nav>
+
+        <div class="p-3 p-md-4">
+
+          <!-- ========================================== -->
+          <!-- 5. SLEEK NOTIFICATION BAR                  -->
+          <!-- ========================================== -->
+          <div class="alert privora-alert-bar alert-dismissible fade show d-flex flex-column flex-md-row align-items-md-center justify-content-between p-3 mb-4" role="alert" id="systemNotificationBar">
+            <div class="d-flex align-items-center gap-3">
+              <span class="pulse-indicator"></span>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-broadcast text-primary fs-5"></i>
+                <div>
+                  <strong class="fw-bold">Live Broadcast Notice:</strong>
+                  <span class="text-slate small ms-1" id="notificationBarText">Active Dynamic QR session broadcasting for <strong>CS-301 (Lab 402)</strong>. Token auto-rotation active.</span>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-2 mt-md-0 pe-4">
+              <span class="badge bg-light border px-2 py-1 fw-semibold" id="notificationAttendeesCount">42 / 48 Checked In</span>
+              <a href="#teacher-section" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 0.75rem;">Manage Session</a>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="top: 50%; transform: translateY(-50%);"></button>
+            </div>
+          </div>
+
+          <!-- Page Header Banner -->
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center pb-3 mb-4 border-bottom">
+            <div>
+              <h3 class="fw-bold mb-1">Privora Attendance Console</h3>
+              <p class="text-slate small mb-0">Dynamic QR session generator, camera scanner viewport, and institutional attendance security audit.</p>
+            </div>
+            <div class="mt-3 mt-md-0 d-flex gap-2">
+              <span class="badge bg-light border d-flex align-items-center px-3 py-2 rounded-3 fw-semibold">
+                <i class="bi bi-calendar3 me-2 text-primary"></i> Today: Nov 09, 2026
+              </span>
+              <span class="badge bg-light border d-flex align-items-center px-3 py-2 rounded-3 fw-semibold">
+                <span class="pulse-indicator me-2"></span> System Online (Offline Ready)
+              </span>
+            </div>
+          </div>
+
+          <!-- ========================================== -->
+          <!-- 1. TEACHER SECTION                         -->
+          <!-- ========================================== -->
+          <section id="teacher-section" class="mb-5">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon-wrapper"><i class="bi bi-qr-code"></i></div>
+                <div>
+                  <h5 class="fw-bold mb-0">Teacher Section: QR Code Generation</h5>
+                  <small class="text-slate">Generate time-sensitive cryptographic QR codes with customizable expiration timers</small>
+                </div>
+              </div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill" id="teacherSessionStatusBadge">
+                <span class="pulse-indicator me-1"></span> Active Session
+              </span>
+            </div>
+
+            <div class="row g-4">
+              <!-- Session Setup Card -->
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-sliders text-slate"></i>
+                      <span class="fw-semibold">Session Configuration</span>
+                    </div>
+                    <span class="badge bg-light text-dark border" id="teacherRoomBadge">Room 402</span>
+                  </div>
+                  <div class="card-body p-4">
+                    <form id="qrGenForm">
+                      <div class="mb-3">
+                        <label for="courseSelect" class="form-label fw-medium small">Course / Subject Module</label>
+                        <select class="form-select" id="courseSelect">
+                          <option value="CS301" selected>CS-301: Cloud Computing &amp; Web Systems</option>
+                          <option value="IT204">IT-204: Database Management Systems</option>
+                          <option value="ENG102">ENG-102: Technical Communications</option>
+                          <option value="MATH104">MATH-104: Discrete Mathematics</option>
+                        </select>
+                      </div>
+
+                      <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                          <label for="roomSection" class="form-label fw-medium small">Assigned Classroom</label>
+                          <input type="text" class="form-control" id="roomSection" value="Lab 402 - Section A">
+                        </div>
+                        <div class="col-md-6">
+                          <label for="sessionType" class="form-label fw-medium small">Lecture Type</label>
+                          <select class="form-select" id="sessionType">
+                            <option selected>Standard Lecture</option>
+                            <option>Hands-on Lab</option>
+                            <option>Examination</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <!-- Expiration Timer Dropdown -->
+                      <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <label for="qrExpirationTimer" class="form-label fw-medium small mb-0">Expiration Timer</label>
+                          <span class="badge bg-warning-subtle text-warning border border-warning-subtle" style="font-size: 0.7rem;">Auto-Rotates Token</span>
+                        </div>
+                        <div class="input-group">
+                          <span class="input-group-text"><i class="bi bi-stopwatch text-slate"></i></span>
+                          <select class="form-select fw-medium" id="qrExpirationTimer">
+                            <option value="30">30 Seconds (Strict Anti-Proxy)</option>
+                            <option value="60" selected>1 Minute (Standard Classroom)</option>
+                            <option value="120">2 Minutes</option>
+                            <option value="300">5 Minutes</option>
+                            <option value="600">10 Minutes</option>
+                          </select>
+                        </div>
+                        <div class="form-text text-slate small">When the timer elapses, the QR token automatically regenerates to prevent absent students from sharing photos.</div>
+                      </div>
+
+                      <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" role="switch" id="geofenceLock" checked>
+                        <label class="form-check-label text-slate small" for="geofenceLock">Enforce Campus Wi-Fi / Geofence Subnet Lock</label>
+                      </div>
+
+                      <!-- FIXED INTERACTIVE SESSION BUTTONS -->
+                      <div class="d-flex flex-wrap gap-2 pt-2">
+                        <button type="button" class="btn btn-primary" id="btnGenerateQR">
+                          <i class="bi bi-arrow-clockwise me-1"></i> Regenerate QR
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnPauseQR">
+                          <i class="bi bi-pause-circle me-1"></i> Pause QR Code
+                        </button>
+                        <button type="button" class="btn btn-outline-danger ms-auto" id="btnCloseSession" data-bs-toggle="modal" data-bs-target="#closeSessionModal">
+                          <i class="bi bi-stop-circle me-1"></i> Close Session
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dynamic QR Code Display Block -->
+              <div class="col-lg-6">
+                <div class="card h-100 text-center">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-broadcast text-slate"></i>
+                      <span class="fw-semibold">Live Projector Display</span>
+                    </div>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle" id="qrDisplayStatusBadge">
+                      <span class="pulse-indicator me-1"></span> Live Broadcast
+                    </span>
+                  </div>
+                  <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                    
+                    <!-- Clean Vector QR Code Container with Pause & Archive Overlays -->
+                    <div class="qr-preview-box mb-3" id="qrPreviewBox">
+                      <!-- Paused State Frosted Overlay -->
+                      <div class="qr-pause-overlay" id="qrPauseOverlay">
+                        <i class="bi bi-pause-circle-fill fs-1 text-warning mb-2"></i>
+                        <h6 class="fw-bold mb-1 text-white">QR Code Paused</h6>
+                        <small class="text-white-50">Attendance scanning temporarily suspended</small>
+                      </div>
+
+                      <!-- Archived / Closed State Overlay -->
+                      <div class="qr-archive-overlay" id="qrArchiveOverlay">
+                        <i class="bi bi-check-circle-fill fs-1 text-success mb-2"></i>
+                        <h6 class="fw-bold mb-1 text-white">Session Archived</h6>
+                        <small class="text-white-50">Attendance finalized &amp; locked</small>
+                        <button class="btn btn-sm btn-light mt-2" onclick="restartNewSession()"><i class="bi bi-plus-circle me-1"></i>Start New Session</button>
+                      </div>
+
+                      <svg viewBox="0 0 200 200" width="180" height="180" xmlns="http://www.w3.org/2000/svg" id="qrVectorSvg">
+                        <rect width="200" height="200" fill="#ffffff" rx="12"/>
+                        <!-- Corner Finder 1 -->
+                        <rect x="20" y="20" width="50" height="50" rx="6" fill="#0f172a"/>
+                        <rect x="28" y="28" width="34" height="34" rx="4" fill="#ffffff"/>
+                        <rect x="34" y="34" width="22" height="22" rx="2" fill="#0f172a"/>
+                        <!-- Corner Finder 2 -->
+                        <rect x="130" y="20" width="50" height="50" rx="6" fill="#0f172a"/>
+                        <rect x="138" y="28" width="34" height="34" rx="4" fill="#ffffff"/>
+                        <rect x="144" y="34" width="22" height="22" rx="2" fill="#0f172a"/>
+                        <!-- Corner Finder 3 -->
+                        <rect x="20" y="130" width="50" height="50" rx="6" fill="#0f172a"/>
+                        <rect x="28" y="138" width="34" height="34" rx="4" fill="#ffffff"/>
+                        <rect x="34" y="144" width="22" height="22" rx="2" fill="#0f172a"/>
+                        <!-- QR Matrix Elements in Deep Navy & Slate -->
+                        <rect x="80" y="25" width="12" height="12" fill="#0f172a"/>
+                        <rect x="100" y="25" width="12" height="12" fill="#64748b"/>
+                        <rect x="80" y="45" width="12" height="12" fill="#64748b"/>
+                        <rect x="100" y="55" width="12" height="12" fill="#0f172a"/>
+                        <rect x="25" y="85" width="12" height="12" fill="#0f172a"/>
+                        <rect x="45" y="95" width="12" height="12" fill="#64748b"/>
+                        <rect x="65" y="85" width="12" height="12" fill="#0f172a"/>
+                        <rect x="85" y="85" width="30" height="30" rx="4" fill="#0f172a"/>
+                        <rect x="91" y="91" width="18" height="18" rx="2" fill="#10b981"/>
+                        <rect x="125" y="85" width="12" height="12" fill="#64748b"/>
+                        <rect x="145" y="95" width="12" height="12" fill="#0f172a"/>
+                        <rect x="165" y="85" width="12" height="12" fill="#64748b"/>
+                        <rect x="80" y="135" width="12" height="12" fill="#0f172a"/>
+                        <rect x="100" y="145" width="12" height="12" fill="#64748b"/>
+                        <rect x="135" y="135" width="12" height="12" fill="#64748b"/>
+                        <rect x="155" y="145" width="12" height="12" fill="#0f172a"/>
+                        <rect x="140" y="165" width="12" height="12" fill="#0f172a"/>
+                        <rect x="160" y="165" width="12" height="12" fill="#64748b"/>
+                        <rect x="85" y="165" width="12" height="12" fill="#64748b"/>
+                        <rect x="105" y="165" width="12" height="12" fill="#0f172a"/>
+                      </svg>
+                    </div>
+
+                    <!-- Token & Countdown Display -->
+                    <div class="d-flex align-items-center justify-content-center gap-4 mb-3">
+                      <div>
+                        <span class="text-slate small d-block">Session Token</span>
+                        <code class="fs-5 fw-bold" id="sessionTokenDisplay">PRV-8492-X</code>
+                      </div>
+                      <div class="vr"></div>
+                      <div>
+                        <span class="text-slate small d-block">Rotation Timer</span>
+                        <span class="fs-5 fw-bold text-danger" id="qrCountdownDisplay">00:59</span>
+                      </div>
+                    </div>
+
+                    <div class="alert alert-light border py-2 px-3 small text-slate mb-3 w-100 rounded-3">
+                      <i class="bi bi-info-circle me-1"></i> Display on classroom projector. Students scan via the browser camera scanner.
+                    </div>
+
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-secondary" onclick="alert('Fullscreen projector mode is enabled for this lecture hall.')">
+                        <i class="bi bi-arrows-fullscreen me-1"></i> Fullscreen
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" onclick="alert('Dynamic QR vector exported to downloads.')">
+                        <i class="bi bi-download me-1"></i> Save Image
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" onclick="copyCheckInLink()">
+                        <i class="bi bi-link-45deg me-1"></i> Copy Link
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================== -->
+          <!-- 2. STUDENT SECTION                         -->
+          <!-- ========================================== -->
+          <section id="student-section" class="mb-5">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon-wrapper"><i class="bi bi-camera"></i></div>
+                <div>
+                  <h5 class="fw-bold mb-0">Student Section: Camera Scanner Viewport</h5>
+                  <small class="text-slate">High-performance browser viewfinder with automatic cryptographic token recognition</small>
+                </div>
+              </div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+                Scanner Viewport Ready
+              </span>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+              <div class="col-xl-8 col-lg-10">
+                <div class="card">
+                  <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+                      <span class="fw-semibold">Live Optical Viewport</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                      <select class="form-select form-select-sm" id="cameraSelector" style="width: auto;">
+                        <option selected>Camera 1 (Primary / Front)</option>
+                        <option>Camera 2 (Wide Angle / Rear)</option>
+                      </select>
+                      <span class="badge bg-light text-dark border">1080p HD</span>
+                    </div>
+                  </div>
+
+                  <div class="card-body p-4">
+                    <!-- High-tech Viewport -->
+                    <div class="scanner-viewport">
+                      <div class="scanner-grid"></div>
+
+                      <!-- Targeting Frame with animated laser line -->
+                      <div class="scanner-frame d-flex align-items-center justify-content-center">
+                        <div class="scanner-laser"></div>
+                        <div class="text-white-50 text-center small">
+                          <i class="bi bi-qr-code fs-1 opacity-25"></i>
+                        </div>
+                      </div>
+
+                      <!-- Alignment Guide -->
+                      <div class="position-absolute bottom-0 start-50 translate-middle-x mb-3 text-center px-3 py-1 bg-dark bg-opacity-75 rounded-pill small border border-secondary text-white z-3">
+                        <i class="bi bi-bounding-box-circles me-1 text-success"></i> Center Privora QR code inside crosshairs
+                      </div>
+                    </div>
+
+                    <!-- Scanner Controls Bar -->
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2">
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" id="btnToggleCam">
+                          <i class="bi bi-camera-video me-1"></i> Flip Camera
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="alert('Camera torch toggled.')">
+                          <i class="bi bi-lightning-charge me-1"></i> Flashlight
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('qrFileInput').click()">
+                          <i class="bi bi-upload me-1"></i> Upload Image
+                        </button>
+                        <input type="file" id="qrFileInput" class="d-none" accept="image/*" onchange="simulateUploadedQR()">
+                      </div>
+
+                      <button class="btn btn-primary btn-sm" id="btnSimulateScan">
+                        <i class="bi bi-check2-circle me-1"></i> Test Scan QR Code
+                      </button>
+                    </div>
+
+                    <!-- Live Scan Result Alert -->
+                    <div class="mt-3" id="scanFeedbackContainer">
+                      <div class="alert alert-secondary d-flex align-items-center justify-content-between py-2 mb-0" id="scanStatusAlert">
+                        <div class="d-flex align-items-center gap-2">
+                          <i class="bi bi-radar fs-5"></i>
+                          <span><strong>Status:</strong> Camera active and awaiting teacher session QR code...</span>
+                        </div>
+                        <span class="badge bg-light text-dark border">Ready</span>
+                      </div>
+                    </div>
+
+                    <!-- Student Context Strip with Attendance Rate Metric -->
+                    <div class="card bg-light border mt-3">
+                      <div class="card-body py-2 px-3">
+                        <div class="row align-items-center g-2 text-slate small">
+                          <div class="col-md-4">
+                            <i class="bi bi-person-badge me-1"></i> <strong>Juan Dela Cruz</strong> (ID: 2026-10492)
+                          </div>
+                          <div class="col-md-4">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle me-1">Present: 28</span>
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle me-1">Late: 3</span>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Absent: 1</span>
+                          </div>
+                          <div class="col-md-4 text-md-end">
+                            <strong>Attendance Rate: </strong>
+                            <span class="fw-bold text-success fs-6">93.8%</span>
+                            <span class="badge bg-success ms-1">Good Standing</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================== -->
+          <!-- 4. STUDENT MANAGEMENT & ATTENDANCE ROSTER  -->
+          <!-- ========================================== -->
+          <section id="student-roster-section" class="mb-5">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon-wrapper"><i class="bi bi-person-lines-fill"></i></div>
+                <div>
+                  <h5 class="fw-bold mb-0">Student Management &amp; Attendance Roster</h5>
+                  <small class="text-slate">Calculated attendance rates, individual counts (Present, Late, Absent), and standing</small>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" onclick="exportStudentRosterCSV()">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Roster CSV
+              </button>
+            </div>
+
+            <div class="card">
+              <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="fw-semibold">Enrolled Cohort Records</span>
+                  <span class="badge bg-light text-dark border">48 Students Active</span>
+                </div>
+                <div class="d-flex gap-2">
+                  <input type="text" class="form-control form-control-sm" id="rosterSearchInput" placeholder="Search student name or ID..." style="max-width: 240px;" onkeyup="filterRosterTable()">
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="studentRosterTable">
+                  <thead>
+                    <tr>
+                      <th>Student Profile</th>
+                      <th>Course &amp; Section</th>
+                      <th class="text-center">Present</th>
+                      <th class="text-center">Late</th>
+                      <th class="text-center">Absent</th>
+                      <th class="text-center">Total Classes</th>
+                      <th>Overall Attendance Rate</th>
+                      <th>Academic Standing</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.8rem;">JD</div>
+                          <div>
+                            <div class="fw-semibold text-dark">Juan Dela Cruz</div>
+                            <small class="text-slate">ID: 2026-10492</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-light text-dark border">CS-301 - Sec A</span></td>
+                      <td class="text-center"><span class="badge bg-success-subtle text-success border border-success-subtle fw-bold">28</span></td>
+                      <td class="text-center"><span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold">3</span></td>
+                      <td class="text-center"><span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold">1</span></td>
+                      <td class="text-center fw-semibold">32</td>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="fw-bold text-success">93.8%</span>
+                          <div class="progress attendance-progress flex-grow-1" style="width: 70px;">
+                            <div class="progress-bar bg-success" style="width: 93.8%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-success">Good Standing</span></td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="alert('Viewing attendance logs for Juan Dela Cruz')">Logs</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="rounded-circle bg-secondary-subtle text-dark fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.8rem;">MG</div>
+                          <div>
+                            <div class="fw-semibold text-dark">Maria Gomez</div>
+                            <small class="text-slate">ID: 2026-0419</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-light text-dark border">IT-204 - Sec B</span></td>
+                      <td class="text-center"><span class="badge bg-success-subtle text-success border border-success-subtle fw-bold">30</span></td>
+                      <td class="text-center"><span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold">1</span></td>
+                      <td class="text-center"><span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold">1</span></td>
+                      <td class="text-center fw-semibold">32</td>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="fw-bold text-success">96.9%</span>
+                          <div class="progress attendance-progress flex-grow-1" style="width: 70px;">
+                            <div class="progress-bar bg-success" style="width: 96.9%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-success">Dean's Lister</span></td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="alert('Viewing attendance logs for Maria Gomez')">Logs</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="rounded-circle bg-warning-subtle text-warning fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.8rem;">CM</div>
+                          <div>
+                            <div class="fw-semibold text-dark">Carlos Mendoza</div>
+                            <small class="text-slate">ID: 2026-0812</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-light text-dark border">CS-301 - Sec A</span></td>
+                      <td class="text-center"><span class="badge bg-success-subtle text-success border border-success-subtle fw-bold">24</span></td>
+                      <td class="text-center"><span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold">4</span></td>
+                      <td class="text-center"><span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold">4</span></td>
+                      <td class="text-center fw-semibold">32</td>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="fw-bold text-warning">81.3%</span>
+                          <div class="progress attendance-progress flex-grow-1" style="width: 70px;">
+                            <div class="progress-bar bg-warning" style="width: 81.3%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-warning text-dark">Warning - At Risk</span></td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="alert('Attendance counseling notice dispatched to Carlos Mendoza')">Notice</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="rounded-circle bg-danger-subtle text-danger fw-bold d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.8rem;">MS</div>
+                          <div>
+                            <div class="fw-semibold text-dark">Miguel Santos</div>
+                            <small class="text-slate">ID: 2026-0112</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-light text-dark border">CS-301 - Sec A</span></td>
+                      <td class="text-center"><span class="badge bg-success-subtle text-success border border-success-subtle fw-bold">19</span></td>
+                      <td class="text-center"><span class="badge bg-warning-subtle text-warning border border-warning-subtle fw-bold">5</span></td>
+                      <td class="text-center"><span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-bold">8</span></td>
+                      <td class="text-center fw-semibold">32</td>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <span class="fw-bold text-danger">67.2%</span>
+                          <div class="progress attendance-progress flex-grow-1" style="width: 70px;">
+                            <div class="progress-bar bg-danger" style="width: 67.2%;"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-danger">Critical Absence</span></td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-danger py-1 px-2" onclick="alert('Academic intervention summons sent for Miguel Santos')">Summons</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="card-footer d-flex justify-content-between align-items-center">
+                <span class="small text-slate">Formula: <code>(Present / Total Classes) * 100</code> | Real-time calculation</span>
+                <span class="small text-slate">Displaying 4 active student profiles</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================== -->
+          <!-- 3. ADMIN SECTION & DYNAMIC ANALYTICS       -->
+          <!-- ========================================== -->
+          <section id="admin-section" class="mb-4">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stat-icon-wrapper"><i class="bi bi-shield-lock"></i></div>
+                <div>
+                  <h5 class="fw-bold mb-0">Admin Section: Attendance Analytics &amp; Security Audit</h5>
+                  <small class="text-slate">Real-time attendance throughput, duplicate check-in audit table, and missing record detection</small>
+                </div>
+              </div>
+
+              <!-- DYNAMIC SUBJECT ANALYTICS SELECTOR -->
+              <div class="d-flex align-items-center gap-2">
+                <label for="analyticsSubjectFilter" class="form-label small fw-semibold text-nowrap mb-0">Filter Subject:</label>
+                <div class="input-group input-group-sm" style="min-width: 250px;">
+                  <span class="input-group-text"><i class="bi bi-funnel"></i></span>
+                  <select class="form-select form-select-sm fw-semibold" id="analyticsSubjectFilter" onchange="filterAnalyticsBySubject()">
+                    <option value="ALL" selected>All Subjects (Aggregate)</option>
+                    <option value="CS301">CS-301: Cloud Computing</option>
+                    <option value="IT204">IT-204: Database Systems</option>
+                    <option value="ENG102">ENG-102: Tech Comms</option>
+                    <option value="MATH104">MATH-104: Discrete Mathematics</option>
+                  </select>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#auditReportsModal">
+                  <i class="bi bi-journal-text me-1"></i> Audit Trail
+                </button>
+              </div>
+            </div>
+
+            <!-- Attendance Analytics Dynamic Stat Cards -->
+            <div class="row g-3 mb-4">
+              <!-- Stat Card 1 -->
+              <div class="col-sm-6 col-xl-3">
+                <div class="card h-100">
+                  <div class="card-body d-flex justify-content-between align-items-center p-3">
+                    <div>
+                      <div class="text-slate small fw-semibold text-uppercase" style="font-size: 0.725rem;">Total Attendees Today</div>
+                      <div class="fs-3 fw-bold mt-1" id="statCardTotalAttendees">428 <span class="fs-6 fw-normal text-slate">/ 450</span></div>
+                      <div class="small text-success mt-1" id="statCardAttendanceRate"><i class="bi bi-arrow-up-short"></i> 95.1% attendance rate</div>
+                    </div>
+                    <div class="stat-icon-wrapper">
+                      <i class="bi bi-people"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stat Card 2 -->
+              <div class="col-sm-6 col-xl-3">
+                <div class="card h-100">
+                  <div class="card-body d-flex justify-content-between align-items-center p-3">
+                    <div>
+                      <div class="text-slate small fw-semibold text-uppercase" style="font-size: 0.725rem;">On-Time Check-Ins</div>
+                      <div class="fs-3 fw-bold mt-1" id="statCardOnTime">392</div>
+                      <div class="small text-success mt-1" id="statCardPunctuality"><i class="bi bi-clock-check"></i> 91.6% punctuality index</div>
+                    </div>
+                    <div class="stat-icon-wrapper">
+                      <i class="bi bi-clock-check"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stat Card 3 -->
+              <div class="col-sm-6 col-xl-3">
+                <div class="card h-100">
+                  <div class="card-body d-flex justify-content-between align-items-center p-3">
+                    <div>
+                      <div class="text-slate small fw-semibold text-uppercase" style="font-size: 0.725rem;">Flagged Duplicates</div>
+                      <div class="fs-3 fw-bold text-warning mt-1" id="statCardDuplicates">14</div>
+                      <div class="small text-danger mt-1"><i class="bi bi-exclamation-triangle"></i> Requires admin review</div>
+                    </div>
+                    <div class="stat-icon-wrapper">
+                      <i class="bi bi-shield-exclamation text-warning"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stat Card 4 -->
+              <div class="col-sm-6 col-xl-3">
+                <div class="card h-100">
+                  <div class="card-body d-flex justify-content-between align-items-center p-3">
+                    <div>
+                      <div class="text-slate small fw-semibold text-uppercase" style="font-size: 0.725rem;">Missing / Unrecorded</div>
+                      <div class="fs-3 fw-bold text-danger mt-1" id="statCardMissing">22</div>
+                      <div class="small text-slate mt-1"><i class="bi bi-envelope"></i> Batch alerts queued</div>
+                    </div>
+                    <div class="stat-icon-wrapper">
+                      <i class="bi bi-person-x text-danger"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Duplicate Log Table and Missing Record Detection List -->
+            <div class="row g-4">
+              <!-- Duplicate Log Table -->
+              <div class="col-lg-7">
+                <div class="card h-100">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-semibold"><i class="bi bi-clipboard2-pulse me-2 text-danger"></i>Duplicate Log Table</div>
+                      <small class="text-slate">Flagged simultaneous scans, device anomalies, and expired attempts</small>
+                    </div>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle" id="duplicateCountBadge">14 Incidents</span>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-hover table-borderless align-middle mb-0" id="duplicateLogsTable">
+                      <thead>
+                        <tr>
+                          <th>Timestamp</th>
+                          <th>Student Details</th>
+                          <th>Course</th>
+                          <th>Anomaly Flag</th>
+                          <th>Resolution</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr data-course="CS301">
+                          <td class="small fw-semibold text-slate">08:34 AM</td>
+                          <td>
+                            <div class="fw-semibold text-dark">Carlos Mendoza</div>
+                            <div class="small text-slate">ID: 2026-0812</div>
+                          </td>
+                          <td><span class="badge bg-light text-dark border">CS-301</span></td>
+                          <td>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                              <i class="bi bi-clock-history me-1"></i> Rapid Dual Scan (4s)
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="resolveDuplicateLog(this)">Resolve</button>
+                          </td>
+                        </tr>
+                        <tr data-course="IT204">
+                          <td class="small fw-semibold text-slate">08:31 AM</td>
+                          <td>
+                            <div class="fw-semibold text-dark">Maria Gomez</div>
+                            <div class="small text-slate">ID: 2026-0419</div>
+                          </td>
+                          <td><span class="badge bg-light text-dark border">IT-204</span></td>
+                          <td>
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                              <i class="bi bi-phone me-1"></i> Device ID Mismatch
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="resolveDuplicateLog(this)">Verify</button>
+                          </td>
+                        </tr>
+                        <tr data-course="CS301">
+                          <td class="small fw-semibold text-slate">08:29 AM</td>
+                          <td>
+                            <div class="fw-semibold text-dark">Ryan Tan</div>
+                            <div class="small text-slate">ID: 2026-0975</div>
+                          </td>
+                          <td><span class="badge bg-light text-dark border">CS-301</span></td>
+                          <td>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                              <i class="bi bi-x-octagon me-1"></i> Rescanned Expired QR
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-danger py-1 px-2" onclick="resolveDuplicateLog(this)">Revoke</button>
+                          </td>
+                        </tr>
+                        <tr data-course="ENG102">
+                          <td class="small fw-semibold text-slate">08:22 AM</td>
+                          <td>
+                            <div class="fw-semibold text-dark">Angela Cruz</div>
+                            <div class="small text-slate">ID: 2026-0155</div>
+                          </td>
+                          <td><span class="badge bg-light text-dark border">ENG-102</span></td>
+                          <td>
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                              <i class="bi bi-globe me-1"></i> Dual IP Subnet
+                            </span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="resolveDuplicateLog(this)">Verify</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span class="small text-slate" id="duplicateFilterHint">Filtered by subject selection</span>
+                    <a href="#auditReportsModal" data-bs-toggle="modal" class="btn btn-link btn-sm text-decoration-none fw-semibold p-0">View Complete Audit Log &rarr;</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Missing Record Detection List -->
+              <div class="col-lg-5">
+                <div class="card h-100">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-semibold"><i class="bi bi-person-x me-2 text-warning"></i>Missing Record Detection</div>
+                      <small class="text-slate">Enrolled roster entries with no verified scan</small>
+                    </div>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle" id="missingCountBadge">22 Missing</span>
+                  </div>
+                  <div class="card-body p-0">
+                    <ul class="list-group list-group-flush" id="missingRecordList">
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-3" data-course="CS301">
+                        <div>
+                          <div class="fw-semibold">Miguel Santos</div>
+                          <div class="small text-slate">ID: 2026-0112 | CS-301 (Lab 402)</div>
+                          <span class="badge bg-danger-subtle text-danger border border-danger-subtle mt-1 missing-record-badge">No Check-in Logged</span>
+                        </div>
+                        <div class="text-end">
+                          <span class="small text-slate d-block mb-1">Due: 08:30 AM</span>
+                          <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="dispatchStudentAlert(this, 'Miguel Santos')"><i class="bi bi-bell me-1"></i> Alert</button>
+                        </div>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-3" data-course="CS301">
+                        <div>
+                          <div class="fw-semibold">Sarah Jenkins</div>
+                          <div class="small text-slate">ID: 2026-0341 | CS-301 (Lab 402)</div>
+                          <span class="badge bg-warning-subtle text-warning border border-warning-subtle mt-1 missing-record-badge">Pending Verification</span>
+                        </div>
+                        <div class="text-end">
+                          <span class="small text-slate d-block mb-1">Due: 08:30 AM</span>
+                          <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="dispatchStudentAlert(this, 'Sarah Jenkins')"><i class="bi bi-bell me-1"></i> Alert</button>
+                        </div>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-3" data-course="IT204">
+                        <div>
+                          <div class="fw-semibold">Joshua Diaz</div>
+                          <div class="small text-slate">ID: 2026-0883 | IT-204 (Room 201)</div>
+                          <span class="badge bg-info-subtle text-info border border-info-subtle mt-1 missing-record-badge">Excused Absence</span>
+                        </div>
+                        <div class="text-end">
+                          <span class="small text-slate d-block mb-1">Due: 08:00 AM</span>
+                          <button class="btn btn-sm btn-light border py-1 px-2" onclick="alert('Medical certificate on file for Joshua Diaz.')"><i class="bi bi-file-text"></i> Note</button>
+                        </div>
+                      </li>
+
+                      <li class="list-group-item d-flex justify-content-between align-items-center p-3" data-course="ENG102">
+                        <div>
+                          <div class="fw-semibold">Chloe Valdez</div>
+                          <div class="small text-slate">ID: 2026-0524 | ENG-102 (Room 105)</div>
+                          <span class="badge bg-danger-subtle text-danger border border-danger-subtle mt-1 missing-record-badge">Unexcused Absence</span>
+                        </div>
+                        <div class="text-end">
+                          <span class="small text-slate d-block mb-1">Due: 08:00 AM</span>
+                          <button class="btn btn-sm btn-outline-primary py-1 px-2" onclick="dispatchStudentAlert(this, 'Chloe Valdez')"><i class="bi bi-bell me-1"></i> Alert</button>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="card-footer d-flex justify-content-between align-items-center">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="alert('Absence warning broadcast dispatched to all non-checked students.')"><i class="bi bi-broadcast me-1"></i> Broadcast Alert</button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="exportMissingRosterCSV()"><i class="bi bi-file-earmark-arrow-down me-1"></i> Export CSV</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CLOSE SESSION CONFIRMATION          -->
+  <!-- ========================================== -->
+  <div class="modal fade" id="closeSessionModal" tabindex="-1" aria-labelledby="closeSessionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="closeSessionModalLabel"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Close &amp; Archive Session?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3">Are you sure you want to finalize the active roll call session for <strong id="closeSessionCourseTitle">CS-301: Cloud Computing</strong>?</p>
+          <div class="card bg-light border p-3 mb-3">
+            <div class="row text-center small text-slate">
+              <div class="col-4">
+                <span class="d-block fw-bold fs-6 text-success">42</span> Checked In
+              </div>
+              <div class="col-4 border-start border-end">
+                <span class="d-block fw-bold fs-6 text-dark">87.5%</span> Rate
+              </div>
+              <div class="col-4">
+                <span class="d-block fw-bold fs-6 text-danger">6</span> Unrecorded
+              </div>
+            </div>
+          </div>
+          <small class="text-muted"><i class="bi bi-shield-lock me-1"></i>Archiving will lock student scan submissions and push attendance records to the institutional audit log.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="btnConfirmCloseSession" data-bs-dismiss="modal" onclick="executeCloseSession()">
+            <i class="bi bi-archive me-1"></i> Confirm &amp; Archive Session
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. MODAL: PROFILE, PREFERENCES & SETTINGS  -->
+  <!-- ========================================== -->
+  <div class="modal fade" id="accountSettingsModal" tabindex="-1" aria-labelledby="accountSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-bottom-0 pb-0">
+          <h5 class="modal-title fw-bold" id="accountSettingsModalLabel"><i class="bi bi-gear-wide-connected text-primary me-2"></i>Account &amp; Platform Settings</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-2">
+          <!-- Settings Tabs -->
+          <ul class="nav settings-nav-tabs border-bottom mb-4" id="settingsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-profile-btn" data-bs-toggle="tab" data-bs-target="#tab-profile-pane" type="button" role="tab">
+                <i class="bi bi-person me-1"></i> Profile Information
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-preferences-btn" data-bs-toggle="tab" data-bs-target="#tab-preferences-pane" type="button" role="tab">
+                <i class="bi bi-sliders me-1"></i> Preferences
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-system-btn" data-bs-toggle="tab" data-bs-target="#tab-system-pane" type="button" role="tab">
+                <i class="bi bi-sliders2 me-1"></i> System Settings (Admin)
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="settingsTabContent">
+            
+            <!-- SUB-SECTION 1: PROFILE INFORMATION -->
+            <div class="tab-pane fade show active" id="tab-profile-pane" role="tabpanel">
+              <form id="profileUpdateForm" onsubmit="saveProfileChanges(event)">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                  <img src="../assets/images/students.jpg" class="rounded-circle border" width="64" height="64" style="object-fit: cover;" alt="Avatar">
+                  <div>
+                    <h6 class="fw-bold mb-1" id="profileModalDisplayName">Prof. Alex Santos</h6>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" id="profileModalDisplayRole">Teacher / Faculty</span>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label for="profileFullName" class="form-label small fw-medium">Account Full Name</label>
+                    <input type="text" class="form-control" id="profileFullName" value="Prof. Alex Santos" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="profileEmail" class="form-label small fw-medium">Institutional Email</label>
+                    <input type="email" class="form-control" id="profileEmail" value="a.santos@university.edu" required>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label for="profileRoleSelect" class="form-label small fw-medium">Assigned System Role</label>
+                    <select class="form-select" id="profileRoleSelect">
+                      <option value="Teacher" selected>Teacher / Faculty</option>
+                      <option value="Student">Student</option>
+                      <option value="Admin">System Administrator</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="profileEmployeeId" class="form-label small fw-medium">Faculty / Identification Number</label>
+                    <input type="text" class="form-control" id="profileEmployeeId" value="FAC-2026-081" readonly>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Save Profile Changes</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- SUB-SECTION 2: PREFERENCES -->
+            <div class="tab-pane fade" id="tab-preferences-pane" role="tabpanel">
+              <div class="mb-4">
+                <h6 class="fw-semibold mb-2">Display &amp; Appearance Mode</h6>
+                <div class="d-flex gap-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="prefThemeRadio" id="prefThemeLight" value="light" onchange="applyPreferenceTheme('light')">
+                    <label class="form-check-label" for="prefThemeLight">
+                      <i class="bi bi-sun me-1"></i> Light Theme
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="prefThemeRadio" id="prefThemeDark" value="dark" onchange="applyPreferenceTheme('dark')">
+                    <label class="form-check-label" for="prefThemeDark">
+                      <i class="bi bi-moon-stars me-1"></i> Dark Theme
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <h6 class="fw-semibold mb-2">Notification &amp; Audio Alerts</h6>
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" id="prefSoundCheck" checked>
+                  <label class="form-check-label small" for="prefSoundCheck">Play audio chime on valid student QR scan</label>
+                </div>
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" id="prefDuplicateAlertCheck" checked>
+                  <label class="form-check-label small" for="prefDuplicateAlertCheck">Show real-time alert banner for duplicate check-in flags</label>
+                </div>
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" id="prefEmailSummaryCheck" checked>
+                  <label class="form-check-label small" for="prefEmailSummaryCheck">Email attendance breakdown summary when session concludes</label>
+                </div>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="prefAutoNotifyAbsent">
+                  <label class="form-check-label small" for="prefAutoNotifyAbsent">Automatically notify absent students when roll call ends</label>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="alert('Preferences successfully saved in local storage.');" data-bs-dismiss="modal">
+                  <i class="bi bi-check2 me-1"></i>Save Preferences
+                </button>
+              </div>
+            </div>
+
+            <!-- SUB-SECTION 3: SYSTEM SETTINGS (ADMIN) -->
+            <div class="tab-pane fade" id="tab-system-pane" role="tabpanel">
+              <div class="alert alert-light border small text-slate mb-4">
+                <i class="bi bi-shield-check text-success me-1"></i> Institutional configuration controls. Changes apply globally across all classroom portals.
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label for="sysDefaultExpiry" class="form-label small fw-medium">Global Default QR Expiration</label>
+                  <select class="form-select" id="sysDefaultExpiry">
+                    <option value="30">30 Seconds (Strict Anti-Proxy)</option>
+                    <option value="60" selected>1 Minute (Standard Classroom)</option>
+                    <option value="120">2 Minutes</option>
+                    <option value="300">5 Minutes</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="sysAcademicTerm" class="form-label small fw-medium">Active Academic Term</label>
+                  <select class="form-select" id="sysAcademicTerm">
+                    <option selected>1st Semester A.Y. 2026-2027</option>
+                    <option>2nd Semester A.Y. 2026-2027</option>
+                    <option>Midyear Term 2027</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                  <label for="sysDuplicateThreshold" class="form-label small fw-medium">Duplicate Scan Velocity Tolerance</label>
+                  <select class="form-select" id="sysDuplicateThreshold">
+                    <option value="5">Under 5 Seconds (Ultra-Strict)</option>
+                    <option value="15" selected>Under 15 Seconds (Recommended)</option>
+                    <option value="30">Under 30 Seconds</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="sysDataRetention" class="form-label small fw-medium">Audit Trail Data Retention</label>
+                  <select class="form-select" id="sysDataRetention">
+                    <option selected>180 Days (Accreditation Standard)</option>
+                    <option>365 Days (Full Academic Year)</option>
+                    <option>Indefinite Permanent Storage</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="alert('Global system parameters updated successfully.');" data-bs-dismiss="modal">
+                  <i class="bi bi-save me-1"></i>Apply Global Settings
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 3. MODAL: AUDIT REPORTS & ACTIVITY TRAILS   -->
+  <!-- ========================================== -->
+  <div class="modal fade" id="auditReportsModal" tabindex="-1" aria-labelledby="auditReportsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="d-flex align-items-center gap-2">
+            <div class="stat-icon-wrapper" style="width: 36px; height: 36px;"><i class="bi bi-clipboard2-data"></i></div>
+            <div>
+              <h5 class="modal-title fw-bold mb-0" id="auditReportsModalLabel">Institutional Audit Log &amp; Activity Trail</h5>
+              <small class="text-slate">Immutable record of logins, session creations, security flags, and manual overrides</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <!-- Filter Controls -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="btn-group btn-group-sm" role="group">
+              <button type="button" class="btn btn-outline-secondary active" onclick="filterAuditTable('ALL', this)">All Trails</button>
+              <button type="button" class="btn btn-outline-secondary" onclick="filterAuditTable('Session', this)">Sessions</button>
+              <button type="button" class="btn btn-outline-secondary" onclick="filterAuditTable('Security', this)">Security Flags</button>
+              <button type="button" class="btn btn-outline-secondary" onclick="filterAuditTable('Auth', this)">Auth Events</button>
+              <button type="button" class="btn btn-outline-secondary" onclick="filterAuditTable('Override', this)">Overrides</button>
+            </div>
+
+            <button class="btn btn-sm btn-outline-primary" onclick="exportAuditLogCSV()">
+              <i class="bi bi-download me-1"></i> Export Audit Trail (CSV)
+            </button>
+          </div>
+
+          <div class="table-responsive border rounded-3">
+            <table class="table table-hover align-middle mb-0" id="auditActivityTable">
+              <thead class="table-light">
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Actor / User</th>
+                  <th>Category</th>
+                  <th>Activity Description</th>
+                  <th>Subnet / Device</th>
+                  <th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-category="Session">
+                  <td class="small fw-semibold text-slate">18:02:14 PM</td>
+                  <td><span class="fw-semibold">Prof. Alex Santos</span></td>
+                  <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Session</span></td>
+                  <td>Started Dynamic QR broadcast for CS-301 (Lab 402)</td>
+                  <td class="small">192.168.1.45</td>
+                  <td><span class="badge bg-success">Success</span></td>
+                </tr>
+                <tr data-category="Override">
+                  <td class="small fw-semibold text-slate">17:45:02 PM</td>
+                  <td><span class="fw-semibold">Admin Santos</span></td>
+                  <td><span class="badge bg-warning-subtle text-warning border border-warning-subtle">Override</span></td>
+                  <td>Manually marked Joshua Diaz (IT-204) as Excused (Medical)</td>
+                  <td class="small">192.168.1.10</td>
+                  <td><span class="badge bg-info">Verified</span></td>
+                </tr>
+                <tr data-category="Security">
+                  <td class="small fw-semibold text-slate">17:30:22 PM</td>
+                  <td><span class="fw-semibold">System Audit</span></td>
+                  <td><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Security</span></td>
+                  <td>Flagged rapid dual scan attempt for Carlos Mendoza (ID: 2026-0812)</td>
+                  <td class="small">192.168.1.88</td>
+                  <td><span class="badge bg-danger">Flagged</span></td>
+                </tr>
+                <tr data-category="Auth">
+                  <td class="small fw-semibold text-slate">16:50:11 PM</td>
+                  <td><span class="fw-semibold">Juan Dela Cruz</span></td>
+                  <td><span class="badge bg-secondary-subtle text-dark border">Auth</span></td>
+                  <td>Student authentication login via Chrome / Windows</td>
+                  <td class="small">192.168.1.104</td>
+                  <td><span class="badge bg-success">Success</span></td>
+                </tr>
+                <tr data-category="Session">
+                  <td class="small fw-semibold text-slate">16:15:40 PM</td>
+                  <td><span class="fw-semibold">Admin Santos</span></td>
+                  <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Session</span></td>
+                  <td>Updated global QR rotation interval to 60 seconds</td>
+                  <td class="small">192.168.1.10</td>
+                  <td><span class="badge bg-success">Applied</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Offcanvas -->
+  <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+    <div class="offcanvas-header border-bottom border-secondary border-opacity-25">
+      <h5 class="offcanvas-title d-flex align-items-center gap-2" id="mobileMenuLabel">
+        <i class="bi bi-qr-code-scan"></i> Privora
+      </h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="nav flex-column">
+        <li class="nav-item"><a href="dashboard.html" class="nav-link text-white"><i class="bi bi-grid-1x2 me-2"></i>Overview Console</a></li>
+        <li class="nav-item"><a href="#teacher-section" class="nav-link text-white"><i class="bi bi-qr-code me-2"></i>Teacher QR Portal</a></li>
+        <li class="nav-item"><a href="#student-section" class="nav-link text-white"><i class="bi bi-camera me-2"></i>Student Scanner</a></li>
+        <li class="nav-item"><a href="#student-roster-section" class="nav-link text-white"><i class="bi bi-person-lines-fill me-2"></i>Student Roster</a></li>
+        <li class="nav-item"><a href="#admin-section" class="nav-link text-white"><i class="bi bi-shield-check me-2"></i>Admin Analytics</a></li>
+        <li class="nav-item mt-4 pt-3 border-top border-secondary border-opacity-25">
+          <a href="../index.html" class="nav-link text-danger"><i class="bi bi-box-arrow-left me-2"></i>Sign Out</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Local Bundle JS -->
+  <script src="../assets/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ========================================== -->
+  <!-- PRIVORA CONSOLE INTERACTIVE JAVASCRIPT     -->
+  <!-- ========================================== -->
+  <script>
+    (function () {
+      // ----------------------------------------------------
+      // 1. Offline Theme Toggle Logic
+      // ----------------------------------------------------
+      const toggleBtn = document.getElementById('themeToggle');
+      function updateThemeIcon(theme) {
+        if (!toggleBtn) return;
+        if (theme === 'dark') {
+          toggleBtn.innerHTML = '<i class="bi bi-sun-fill text-warning"></i>';
+          toggleBtn.setAttribute('title', 'Switch to light theme');
+        } else {
+          toggleBtn.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+          toggleBtn.setAttribute('title', 'Switch to dark theme');
+        }
+        const darkRadio = document.getElementById('prefThemeDark');
+        const lightRadio = document.getElementById('prefThemeLight');
+        if (darkRadio && lightRadio) {
+          if (theme === 'dark') darkRadio.checked = true;
+          else lightRadio.checked = true;
+        }
+      }
+
+      const activeTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      updateThemeIcon(activeTheme);
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+          const current = document.documentElement.getAttribute('data-bs-theme');
+          const nextTheme = current === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-bs-theme', nextTheme);
+          localStorage.setItem('privora-theme', nextTheme);
+          updateThemeIcon(nextTheme);
+        });
+      }
+
+      // ----------------------------------------------------
+      // 2. Expiration Timer & Dynamic QR Code Generation
+      // ----------------------------------------------------
+      const timerSelect = document.getElementById('qrExpirationTimer');
+      const countdownDisplay = document.getElementById('qrCountdownDisplay');
+      const tokenDisplay = document.getElementById('sessionTokenDisplay');
+      const btnGenerate = document.getElementById('btnGenerateQR');
+      const btnPauseQR = document.getElementById('btnPauseQR');
+      const qrPreviewBox = document.getElementById('qrPreviewBox');
+      const qrDisplayStatusBadge = document.getElementById('qrDisplayStatusBadge');
+      const teacherSessionStatusBadge = document.getElementById('teacherSessionStatusBadge');
+
+      let countdownSeconds = parseInt(timerSelect.value, 10);
+      let timerInterval = null;
+      let isPaused = false;
+      let isArchived = false;
+
+      function formatTime(sec) {
+        const m = Math.floor(sec / 60).toString().padStart(2, '0');
+        const s = (sec % 60).toString().padStart(2, '0');
+        return m + ':' + s;
+      }
+
+      function generateNewToken() {
+        const rand = Math.floor(1000 + Math.random() * 9000);
+        const letters = 'XYZABCDEF';
+        const suffix = letters[Math.floor(Math.random() * letters.length)];
+        return 'PRV-' + rand + '-' + suffix;
+      }
+
+      function startCountdown() {
+        if (timerInterval) clearInterval(timerInterval);
+        if (isPaused || isArchived) return;
+
+        countdownSeconds = parseInt(timerSelect.value, 10);
+        countdownDisplay.textContent = formatTime(countdownSeconds);
+        countdownDisplay.className = 'fs-5 fw-bold';
+
+        timerInterval = setInterval(() => {
+          if (isPaused || isArchived) return;
+
+          countdownSeconds--;
+          if (countdownSeconds <= 10) {
+            countdownDisplay.className = 'fs-5 fw-bold text-danger';
+          } else if (countdownSeconds <= 25) {
+            countdownDisplay.className = 'fs-5 fw-bold text-warning';
+          }
+          if (countdownSeconds <= 0) {
+            tokenDisplay.textContent = generateNewToken();
+            countdownSeconds = parseInt(timerSelect.value, 10);
+          }
+          countdownDisplay.textContent = formatTime(countdownSeconds);
+        }, 1000);
+      }
+
+      timerSelect.addEventListener('change', startCountdown);
+
+      btnGenerate.addEventListener('click', () => {
+        if (isArchived) {
+          restartNewSession();
+          return;
+        }
+        tokenDisplay.textContent = generateNewToken();
+        if (isPaused) {
+          togglePauseState();
+        } else {
+          startCountdown();
+        }
+      });
+
+      // ----------------------------------------------------
+      // 3. Pause QR Code Active Click Handler
+      // ----------------------------------------------------
+      function togglePauseState() {
+        if (isArchived) return;
+        isPaused = !isPaused;
+
+        if (isPaused) {
+          qrPreviewBox.classList.add('qr-paused');
+          btnPauseQR.className = 'btn btn-warning';
+          btnPauseQR.innerHTML = '<i class="bi bi-play-circle me-1"></i> Resume QR Code';
+          qrDisplayStatusBadge.className = 'badge bg-warning-subtle text-warning border border-warning-subtle';
+          qrDisplayStatusBadge.innerHTML = '<i class="bi bi-pause-circle me-1"></i> Session Paused';
+          teacherSessionStatusBadge.className = 'badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 rounded-pill';
+          teacherSessionStatusBadge.innerHTML = '<i class="bi bi-pause-circle me-1"></i> Paused';
+          updateNotificationBar('Lecture session temporarily paused. QR scanning suspended.');
+        } else {
+          qrPreviewBox.classList.remove('qr-paused');
+          btnPauseQR.className = 'btn btn-outline-secondary';
+          btnPauseQR.innerHTML = '<i class="bi bi-pause-circle me-1"></i> Pause QR Code';
+          qrDisplayStatusBadge.className = 'badge bg-success-subtle text-success border border-success-subtle';
+          qrDisplayStatusBadge.innerHTML = '<span class="pulse-indicator me-1"></span> Live Broadcast';
+          teacherSessionStatusBadge.className = 'badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill';
+          teacherSessionStatusBadge.innerHTML = '<span class="pulse-indicator me-1"></span> Active Session';
+          updateNotificationBar('Active Dynamic QR session broadcasting. Token auto-rotation active.');
+        }
+      }
+
+      btnPauseQR.addEventListener('click', togglePauseState);
+
+      // ----------------------------------------------------
+      // 4. Close Session Confirmation Handler
+      // ----------------------------------------------------
+      window.executeCloseSession = function() {
+        if (timerInterval) clearInterval(timerInterval);
+        isArchived = true;
+        isPaused = false;
+
+        qrPreviewBox.classList.remove('qr-paused');
+        qrPreviewBox.classList.add('qr-archived');
+        countdownDisplay.textContent = '00:00';
+        countdownDisplay.className = 'fs-5 fw-bold text-muted';
+        btnPauseQR.disabled = true;
+
+        qrDisplayStatusBadge.className = 'badge bg-secondary-subtle text-secondary border';
+        qrDisplayStatusBadge.innerHTML = '<i class="bi bi-archive me-1"></i> Archived';
+        teacherSessionStatusBadge.className = 'badge bg-secondary-subtle text-secondary border px-3 py-2 rounded-pill';
+        teacherSessionStatusBadge.innerHTML = '<i class="bi bi-lock me-1"></i> Session Closed';
+
+        updateNotificationBar('Roll call session has been closed and archived to audit records.');
+        addAuditEntry('Session', 'Finalized & archived attendance session for CS-301', 'Success');
+      };
+
+      window.restartNewSession = function() {
+        isArchived = false;
+        isPaused = false;
+        btnPauseQR.disabled = false;
+        qrPreviewBox.classList.remove('qr-paused', 'qr-archived');
+        btnPauseQR.className = 'btn btn-outline-secondary';
+        btnPauseQR.innerHTML = '<i class="bi bi-pause-circle me-1"></i> Pause QR Code';
+        tokenDisplay.textContent = generateNewToken();
+        startCountdown();
+        qrDisplayStatusBadge.className = 'badge bg-success-subtle text-success border border-success-subtle';
+        qrDisplayStatusBadge.innerHTML = '<span class="pulse-indicator me-1"></span> Live Broadcast';
+        teacherSessionStatusBadge.className = 'badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill';
+        teacherSessionStatusBadge.innerHTML = '<span class="pulse-indicator me-1"></span> Active Session';
+        updateNotificationBar('New session initialized. Dynamic QR token rotation running.');
+      };
+
+      startCountdown();
+
+      // ----------------------------------------------------
+      // 5. Student Scanner Simulation & Camera Toggle
+      // ----------------------------------------------------
+      const btnSimulateScan = document.getElementById('btnSimulateScan');
+      const scanStatusAlert = document.getElementById('scanStatusAlert');
+      const btnToggleCam = document.getElementById('btnToggleCam');
+      let currentCamIndex = 1;
+
+      btnSimulateScan.addEventListener('click', () => {
+        if (isPaused) {
+          alert('Cannot scan: The teacher has temporarily paused this QR session.');
+          return;
+        }
+        if (isArchived) {
+          alert('Cannot scan: This attendance session has already been closed.');
+          return;
+        }
+
+        scanStatusAlert.className = 'alert alert-success d-flex align-items-center justify-content-between py-2 mb-0';
+        scanStatusAlert.innerHTML = `
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+            <span><strong>Verified!</strong> Check-in recorded for <strong>Juan Dela Cruz (CS-301)</strong> at ${new Date().toLocaleTimeString()}.</span>
+          </div>
+          <span class="badge bg-success-subtle text-success border border-success-subtle">Recorded On-Time</span>
+        `;
+        addAuditEntry('Auth', 'Student Juan Dela Cruz logged valid attendance check-in', 'Success');
+      });
+
+      btnToggleCam.addEventListener('click', () => {
+        currentCamIndex = currentCamIndex === 1 ? 2 : 1;
+        document.getElementById('cameraSelector').selectedIndex = currentCamIndex - 1;
+        alert('Switched to Camera ' + currentCamIndex + ' (' + (currentCamIndex === 1 ? 'Front / Primary' : 'Wide Angle / Rear') + ').');
+      });
+
+      window.simulateUploadedQR = function() {
+        const fileInput = document.getElementById('qrFileInput');
+        if (fileInput.files && fileInput.files[0]) {
+          btnSimulateScan.click();
+        }
+      };
+
+      // ----------------------------------------------------
+      // 6. Dynamic Subject Analytics Filtering
+      // ----------------------------------------------------
+      const subjectMetrics = {
+        ALL: { attendees: '428 / 450', rate: '95.1%', ontime: '392', punctuality: '91.6%', dupes: '14', missing: '22' },
+        CS301: { attendees: '42 / 48', rate: '87.5%', ontime: '38', punctuality: '90.5%', dupes: '3', missing: '6' },
+        IT204: { attendees: '38 / 40', rate: '95.0%', ontime: '36', punctuality: '94.7%', dupes: '2', missing: '2' },
+        ENG102: { attendees: '45 / 45', rate: '100%', ontime: '44', punctuality: '97.8%', dupes: '1', missing: '0' },
+        MATH104: { attendees: '36 / 42', rate: '85.7%', ontime: '31', punctuality: '86.1%', dupes: '4', missing: '6' }
+      };
+
+      window.filterAnalyticsBySubject = function() {
+        const filterVal = document.getElementById('analyticsSubjectFilter').value;
+        const data = subjectMetrics[filterVal] || subjectMetrics.ALL;
+
+        // Update Stat Cards Dynamically
+        document.getElementById('statCardTotalAttendees').innerHTML = `${data.attendees.split('/')[0]} <span class="fs-6 fw-normal text-slate">/ ${data.attendees.split('/')[1] || ''}</span>`;
+        document.getElementById('statCardAttendanceRate').innerHTML = `<i class="bi bi-arrow-up-short"></i> ${data.rate} attendance rate`;
+        document.getElementById('statCardOnTime').textContent = data.ontime;
+        document.getElementById('statCardPunctuality').innerHTML = `<i class="bi bi-clock-check"></i> ${data.punctuality} punctuality index`;
+        document.getElementById('statCardDuplicates').textContent = data.dupes;
+        document.getElementById('statCardMissing').textContent = data.missing;
+
+        // Filter Duplicate Logs Table
+        const dupRows = document.querySelectorAll('#duplicateLogsTable tbody tr');
+        let visibleDupCount = 0;
+        dupRows.forEach(row => {
+          const rowCourse = row.getAttribute('data-course');
+          if (filterVal === 'ALL' || rowCourse === filterVal) {
+            row.style.display = '';
+            visibleDupCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        document.getElementById('duplicateCountBadge').textContent = `${visibleDupCount} Incidents`;
+
+        // Filter Missing Record List
+        const missingItems = document.querySelectorAll('#missingRecordList li');
+        let visibleMissingCount = 0;
+        missingItems.forEach(item => {
+          const itemCourse = item.getAttribute('data-course');
+          if (filterVal === 'ALL' || itemCourse === filterVal) {
+            item.style.display = '';
+            visibleMissingCount++;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        document.getElementById('missingCountBadge').textContent = `${visibleMissingCount} Missing`;
+      };
+
+      // ----------------------------------------------------
+      // 7. Student Roster Search & Filter
+      // ----------------------------------------------------
+      window.filterRosterTable = function() {
+        const query = document.getElementById('rosterSearchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#studentRosterTable tbody tr');
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(query) ? '' : 'none';
+        });
+      };
+
+      // ----------------------------------------------------
+      // 8. Settings & Profile Module Switching
+      // ----------------------------------------------------
+      window.switchSettingsTab = function(tabName) {
+        if (tabName === 'profile') {
+          const btn = document.getElementById('tab-profile-btn');
+          if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+        } else if (tabName === 'preferences') {
+          const btn = document.getElementById('tab-preferences-btn');
+          if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+        } else if (tabName === 'system') {
+          const btn = document.getElementById('tab-system-btn');
+          if (btn) bootstrap.Tab.getOrCreateInstance(btn).show();
+        }
+      };
+
+      window.saveProfileChanges = function(e) {
+        e.preventDefault();
+        const newName = document.getElementById('profileFullName').value;
+        const newEmail = document.getElementById('profileEmail').value;
+        const newRole = document.getElementById('profileRoleSelect').value;
+
+        // Update Top Navigation Bar
+        document.getElementById('topNavUserName').textContent = newName;
+        document.getElementById('topNavUserRole').textContent = newRole;
+        document.getElementById('profileModalDisplayName').textContent = newName;
+        document.getElementById('profileModalDisplayRole').textContent = newRole;
+
+        alert('Profile information updated successfully for ' + newName + '.');
+        bootstrap.Modal.getInstance(document.getElementById('accountSettingsModal')).hide();
+        addAuditEntry('Override', `Updated profile credentials for ${newName} (${newRole})`, 'Success');
+      };
+
+      window.applyPreferenceTheme = function(theme) {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        localStorage.setItem('privora-theme', theme);
+        updateThemeIcon(theme);
+      };
+
+      // ----------------------------------------------------
+      // 9. Helpers & Audit Logging
+      // ----------------------------------------------------
+      function updateNotificationBar(msg) {
+        const bar = document.getElementById('notificationBarText');
+        if (bar) bar.innerHTML = msg;
+      }
+
+      function addAuditEntry(category, desc, outcome) {
+        const table = document.getElementById('auditActivityTable');
+        if (!table) return;
+        const tbody = table.querySelector('tbody');
+        const now = new Date().toLocaleTimeString();
+        const row = document.createElement('tr');
+        row.setAttribute('data-category', category);
+        row.innerHTML = `
+          <td class="small fw-semibold text-slate">${now}</td>
+          <td><span class="fw-semibold">Current User</span></td>
+          <td><span class="badge bg-primary-subtle text-primary border border-primary-subtle">${category}</span></td>
+          <td>${desc}</td>
+          <td class="small">127.0.0.1</td>
+          <td><span class="badge bg-success">${outcome}</span></td>
+        `;
+        tbody.insertBefore(row, tbody.firstChild);
+      }
+
+      window.filterAuditTable = function(category, btnElem) {
+        const buttons = btnElem.parentElement.querySelectorAll('button');
+        buttons.forEach(b => b.classList.remove('active'));
+        btnElem.classList.add('active');
+
+        const rows = document.querySelectorAll('#auditActivityTable tbody tr');
+        rows.forEach(row => {
+          const rowCat = row.getAttribute('data-category');
+          row.style.display = (category === 'ALL' || rowCat === category) ? '' : 'none';
+        });
+      };
+
+      window.resolveDuplicateLog = function(btn) {
+        const row = btn.closest('tr');
+        btn.className = 'btn btn-sm btn-success py-1 px-2';
+        btn.innerHTML = '<i class="bi bi-check2"></i> Resolved';
+        btn.disabled = true;
+        addAuditEntry('Security', 'Resolved duplicate attendance conflict', 'Resolved');
+      };
+
+      window.dispatchStudentAlert = function(btn, studentName) {
+        btn.className = 'btn btn-sm btn-success py-1 px-2';
+        btn.innerHTML = '<i class="bi bi-check2"></i> Sent';
+        btn.disabled = true;
+        alert(`Absence alert notice successfully dispatched to ${studentName}.`);
+        addAuditEntry('Override', `Dispatched absence warning to ${studentName}`, 'Delivered');
+      };
+
+      window.copyCheckInLink = function() {
+        const token = tokenDisplay.textContent;
+        const link = window.location.origin + window.location.pathname.replace('dashboard.html', 'index.html') + '?token=' + token;
+        navigator.clipboard.writeText(link).then(() => {
+          alert('Check-in link copied: ' + link);
+        }).catch(() => {
+          alert('Check-in link: ' + link);
+        });
+      };
+
+      window.exportStudentRosterCSV = function() {
+        const csvContent = "data:text/csv;charset=utf-8," 
+          + "Student Name,Student ID,Course Section,Present,Late,Absent,Total Classes,Attendance Rate,Standing\n"
+          + "Juan Dela Cruz,2026-10492,CS-301 - Sec A,28,3,1,32,93.8%,Good Standing\n"
+          + "Maria Gomez,2026-0419,IT-204 - Sec B,30,1,1,32,96.9%,Dean's Lister\n"
+          + "Carlos Mendoza,2026-0812,CS-301 - Sec A,24,4,4,32,81.3%,Warning - At Risk\n"
+          + "Miguel Santos,2026-0112,CS-301 - Sec A,19,5,8,32,67.2%,Critical Absence\n";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "privora_student_roster.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      window.exportMissingRosterCSV = function() {
+        const csvContent = "data:text/csv;charset=utf-8,"
+          + "Student Name,Student ID,Course,Scheduled Time,Status\n"
+          + "Miguel Santos,2026-0112,CS-301,08:30 AM,No Check-in Logged\n"
+          + "Sarah Jenkins,2026-0341,CS-301,08:30 AM,Pending Verification\n"
+          + "Joshua Diaz,2026-0883,IT-204,08:00 AM,Excused Absence\n"
+          + "Chloe Valdez,2026-0524,ENG-102,08:00 AM,Unexcused Absence\n";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "privora_missing_records.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      window.exportAuditLogCSV = function() {
+        const csvContent = "data:text/csv;charset=utf-8,"
+          + "Timestamp,Actor,Category,Activity,Subnet IP,Outcome\n"
+          + "18:02:14 PM,Prof. Alex Santos,Session,Started Dynamic QR broadcast for CS-301,192.168.1.45,Success\n"
+          + "17:45:02 PM,Admin Santos,Override,Manually marked Joshua Diaz as Excused,192.168.1.10,Verified\n"
+          + "17:30:22 PM,System Audit,Security,Flagged rapid dual scan attempt for Carlos Mendoza,192.168.1.88,Flagged\n"
+          + "16:50:11 PM,Juan Dela Cruz,Auth,Student authentication login via Chrome,192.168.1.104,Success\n"
+          + "16:15:40 PM,Admin Santos,Session,Updated global QR rotation interval to 60s,192.168.1.10,Applied\n";
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "privora_system_audit_trail.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+    })();
+  </script>
+</body>
+</html>
